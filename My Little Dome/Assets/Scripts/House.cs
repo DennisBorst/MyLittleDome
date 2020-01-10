@@ -6,15 +6,25 @@ public class House : MonoBehaviour
 {
     public int woodAmount;
 
+    [SerializeField] private GameObject player;
     [SerializeField] private GameObject[] woodpile;
+
+    [SerializeField] private float animationTime;
+    private float currentAnimationTime;
 
     private float isPressingTime = 0.5f;
     private float currentIsPressingTime;
+
+    private bool animationPlaying = false;
     private bool isPressing = false;
 
+    private Animator anim;
 
     void Start()
     {
+        anim = GetComponent<Animator>();
+
+        currentAnimationTime = animationTime;
         currentIsPressingTime = isPressingTime;
 
         for (int i = 0; i < woodpile.Length; i++)
@@ -40,6 +50,18 @@ public class House : MonoBehaviour
                 currentIsPressingTime = isPressingTime;
             }
         }
+
+        if (animationPlaying)
+        {
+            currentAnimationTime = Timer(currentAnimationTime);
+
+            if(currentAnimationTime <= 0)
+            {
+                animationPlaying = false;
+                currentAnimationTime = animationTime;
+                player.SetActive(true);
+            }
+        }
     }
 
     private void OnTriggerStay(Collider collider)
@@ -52,6 +74,9 @@ public class House : MonoBehaviour
                 {
                     isPressing = true;
                     UpdateWood(-1, false);
+                    anim.SetTrigger("houseActive");
+                    animationPlaying = true;
+                    player.SetActive(false);
                 }
             }
             else
